@@ -1,5 +1,5 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite_image/appwrite_image.dart';
+import 'package:better_appwrite/better_appwrite.dart';
 import 'package:flutter/material.dart';
 
 void main() {

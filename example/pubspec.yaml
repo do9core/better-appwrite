@@ -32,7 +32,7 @@ dependencies:
     sdk: flutter
 
   appwrite: ^11.0.0
-  appwrite_image:
+  better_appwrite:
     path: ../
 
 dev_dependencies:
