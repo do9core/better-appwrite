@@ -1,9 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:appwrite/appwrite.dart';
+import 'package:meta/meta.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -28,6 +30,7 @@ class AppwritePreviewImageProvider
     this.background,
     this.output,
     this.storage,
+    this.simulateProgress = false,
   });
 
   static Storage? _defaultStorage;
@@ -99,6 +102,11 @@ class AppwritePreviewImageProvider
   /// Image scale
   final double scale;
 
+  /// Simulate image load progress as
+  /// XXX: currently appwrite sdk doesn't support the download progress
+  @experimental
+  final bool simulateProgress;
+
   @override
   Future<AppwritePreviewImageProvider> obtainKey(
       ImageConfiguration configuration) {
@@ -110,7 +118,6 @@ class AppwritePreviewImageProvider
     AppwritePreviewImageProvider key,
     ImageDecoderCallback decode,
   ) {
-    // XXX: currently appwrite sdk doesn't support the download progress
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),
@@ -129,18 +136,22 @@ class AppwritePreviewImageProvider
     StreamController<ImageChunkEvent> chunkEvents,
     ImageDecoderCallback decode,
   ) async {
+    assert(key == this);
+    final storage = this.storage ?? _defaultStorage;
+    assert(
+      storage != null,
+      'You must set a storage provider with instance parameter "storage" '
+      'or class function "AppwriteImageProvider.setDefaultStorage"',
+    );
+    final completer = Completer<ImageChunkEvent>();
+    final _TrunksHandler trunksHandler;
+    if (simulateProgress) {
+      trunksHandler = _SmoothTrunksHandler(chunkEvents);
+    } else {
+      trunksHandler = _SimpleTrunksHandler(chunkEvents);
+    }
+    trunksHandler.start(completer);
     try {
-      assert(key == this);
-      final storage = this.storage ?? _defaultStorage;
-      assert(
-        storage != null,
-        'You must set a storage provider with instance parameter "storage" '
-        'or class function "AppwriteImageProvider.setDefaultStorage"',
-      );
-      chunkEvents.add(const ImageChunkEvent(
-        cumulativeBytesLoaded: 0,
-        expectedTotalBytes: null,
-      ));
       final bytes = await storage!.getFilePreview(
         bucketId: key.bucketId,
         fileId: key.fileId,
@@ -156,13 +167,14 @@ class AppwritePreviewImageProvider
         background: _colorToString(background),
         output: output?.raw,
       );
-      chunkEvents.add(ImageChunkEvent(
+      completer.complete(ImageChunkEvent(
         cumulativeBytesLoaded: bytes.length,
         expectedTotalBytes: bytes.length,
       ));
       final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
       return decode(buffer);
     } catch (e) {
+      completer.completeError(e);
       scheduleMicrotask(() {
         PaintingBinding.instance.imageCache.evict(key);
       });
@@ -213,4 +225,52 @@ class AppwritePreviewImageProvider
   @override
   String toString() =>
       '${objectRuntimeType(this, 'AppwritePreviewImage')}("$bucketId/$fileId")';
+}
+
+abstract class _TrunksHandler {
+  _TrunksHandler(this.chunkEvents);
+
+  final StreamController<ImageChunkEvent> chunkEvents;
+
+  Future<void> start(Completer<ImageChunkEvent> completer);
+}
+
+class _SimpleTrunksHandler extends _TrunksHandler {
+  _SimpleTrunksHandler(super.chunkEvents);
+
+  @override
+  Future<void> start(Completer<ImageChunkEvent> completer) {
+    chunkEvents.add(const ImageChunkEvent(
+      cumulativeBytesLoaded: 0,
+      expectedTotalBytes: null,
+    ));
+    return completer.future
+        .then((value) => chunkEvents.add(value))
+        .catchError((_) {});
+  }
+}
+
+class _SmoothTrunksHandler extends _TrunksHandler {
+  _SmoothTrunksHandler(super.chunkEvents);
+
+  @override
+  Future<void> start(Completer<ImageChunkEvent> completer) {
+    final r = math.Random();
+    var cumulativeBytesLoaded = 0;
+    return Future.doWhile(() async {
+      await Future.delayed(const Duration(milliseconds: 200));
+      final inc = (50 + 50 * r.nextDouble()).floor();
+      cumulativeBytesLoaded = math.min(cumulativeBytesLoaded + inc, 990);
+      chunkEvents.add(
+        ImageChunkEvent(
+          cumulativeBytesLoaded: cumulativeBytesLoaded,
+          expectedTotalBytes: 1000,
+        ),
+      );
+      return !completer.isCompleted;
+    })
+        .then((value) => completer.future)
+        .then((value) => chunkEvents.add(value))
+        .catchError((_) {});
+  }
 }

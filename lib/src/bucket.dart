@@ -42,6 +42,7 @@ class Bucket {
     return storage.updateFile(
       bucketId: id,
       fileId: fileId,
+      permissions: permissions,
     );
   }
 
@@ -85,7 +86,7 @@ class Bucket {
   }
 
   Future<Uint8List> getFileView(String fileId) {
-    return storage.getFilePreview(bucketId: id, fileId: fileId);
+    return storage.getFileView(bucketId: id, fileId: fileId);
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import 'gravity.dart';
 import 'image_provider.dart';
@@ -39,6 +40,7 @@ class AppwritePreviewImage extends StatelessWidget {
     this.gaplessPlayback = false,
     this.isAntiAlias = false,
     this.filterQuality = FilterQuality.low,
+    this.simulateProgress = false,
   });
 
   /// Appwrite storage bucketId
@@ -135,6 +137,11 @@ class AppwritePreviewImage extends StatelessWidget {
   /// From [Image.filterQuality]
   final FilterQuality filterQuality;
 
+  /// Simulate image load progress as
+  /// XXX: currently appwrite sdk doesn't support the download progress
+  @experimental
+  final bool simulateProgress;
+
   @override
   Widget build(BuildContext context) {
     return Image(
@@ -154,6 +161,7 @@ class AppwritePreviewImage extends StatelessWidget {
         background: background,
         output: output,
         storage: storage,
+        simulateProgress: simulateProgress,
       ),
       frameBuilder: frameBuilder,
       loadingBuilder: loadingBuilder,

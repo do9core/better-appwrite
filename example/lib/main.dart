@@ -63,14 +63,18 @@ Widget _loading(
   ImageChunkEvent? loadingProgress,
 ) {
   // Note: Appwrite SDK currently does not support download progress monitoring.
-  // DO NOT rely on ImageChunkEvent to display download progress.
-  // But you can know whether the image loading is done through the API.
-  if (loadingProgress != null) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-  return child;
+  return AnimatedSwitcher(
+    duration: const Duration(milliseconds: 300),
+    child: loadingProgress != null
+        ? Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.progress,
+              color: Theme.of(context).colorScheme.primary,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            ),
+          )
+        : child,
+  );
 }
 
 class _UseImageProvider extends StatelessWidget {
@@ -109,6 +113,7 @@ class _UseWidget extends StatelessWidget {
         previewHeight: 200,
         output: OutputFormat.webp,
         loadingBuilder: _loading,
+        simulateProgress: true,
         errorBuilder: (context, error, stackTrace) {
           return AspectRatio(
             aspectRatio: 1,
@@ -123,5 +128,12 @@ class _UseWidget extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+extension ProgressExt on ImageChunkEvent {
+  double? get progress {
+    if (expectedTotalBytes == null) return null;
+    return cumulativeBytesLoaded / expectedTotalBytes!;
   }
 }

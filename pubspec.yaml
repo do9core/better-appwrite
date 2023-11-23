@@ -1,5 +1,5 @@
 name: better_appwrite
-description: A new Flutter project.
+description: Appwrite Client SDK helpers for Flutter.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
@@ -10,13 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  appwrite: ^11.0.0
-  freezed_annotation: ^2.4.1
+  appwrite: ^11.0.1
+  meta: ^1.9.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.0
-  freezed: ^2.4.5
-  build_runner: any
+  flutter_lints: ^3.0.1
