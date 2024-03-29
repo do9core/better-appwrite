@@ -1,4 +1,5 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:better_appwrite/better_appwrite.dart';
 import 'package:flutter/material.dart';
 
@@ -91,7 +92,7 @@ class _UseImageProvider extends StatelessWidget {
           fileId: '652ce6f7135a54ac8b08',
           width: 100,
           height: 100,
-          output: OutputFormat.png,
+          output: ImageFormat.png,
         ),
         loadingBuilder: _loading,
       ),
@@ -111,7 +112,7 @@ class _UseWidget extends StatelessWidget {
         fileId: '6525f8815ea49f2c3a53',
         previewWidth: 200,
         previewHeight: 200,
-        output: OutputFormat.webp,
+        output: ImageFormat.webp,
         loadingBuilder: _loading,
         simulateProgress: true,
         errorBuilder: (context, error, stackTrace) {

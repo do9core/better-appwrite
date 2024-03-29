@@ -5,12 +5,10 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-
-import 'gravity.dart';
-import 'output_format.dart';
 
 class AppwritePreviewImageProvider
     extends ImageProvider<AppwritePreviewImageProvider> {
@@ -67,7 +65,7 @@ class AppwritePreviewImageProvider
   final String fileId;
 
   /// Appwrite image clip gravity
-  final Gravity? gravity;
+  final ImageGravity? gravity;
 
   /// Appwrite preview quality 0-100
   final int? quality;
@@ -97,7 +95,7 @@ class AppwritePreviewImageProvider
   final Color? background;
 
   /// Appwrite preview output format
-  final OutputFormat? output;
+  final ImageFormat? output;
 
   /// Image scale
   final double scale;
@@ -157,7 +155,7 @@ class AppwritePreviewImageProvider
         fileId: key.fileId,
         width: width,
         height: height,
-        gravity: gravity?.raw,
+        gravity: gravity,
         quality: quality,
         borderWidth: borderWidth,
         borderColor: _colorToString(borderColor),
@@ -165,7 +163,7 @@ class AppwritePreviewImageProvider
         opacity: opacity,
         rotation: rotation,
         background: _colorToString(background),
-        output: output?.raw,
+        output: output,
       );
       completer.complete(ImageChunkEvent(
         cumulativeBytesLoaded: bytes.length,

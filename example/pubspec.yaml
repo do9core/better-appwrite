@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  appwrite: ^11.0.0
+  appwrite: any
   better_appwrite:
     path: ../
 

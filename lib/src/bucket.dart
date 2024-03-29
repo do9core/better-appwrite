@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart' as models;
-
-import './gravity.dart';
 
 class Bucket {
   Bucket(this.storage, this.id);
@@ -58,7 +57,7 @@ class Bucket {
     String fileId, {
     int? width,
     int? height,
-    Gravity? gravity,
+    ImageGravity? gravity,
     int? quality,
     int? borderWidth,
     String? borderColor,
@@ -66,14 +65,14 @@ class Bucket {
     double? opacity,
     int? rotation,
     String? background,
-    String? output,
+    ImageFormat? output,
   }) {
     return storage.getFilePreview(
       bucketId: id,
       fileId: fileId,
       width: width,
       height: height,
-      gravity: gravity?.raw,
+      gravity: gravity,
       quality: quality,
       borderWidth: borderWidth,
       borderColor: borderColor,

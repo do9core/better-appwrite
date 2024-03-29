@@ -1,10 +1,9 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'gravity.dart';
 import 'image_provider.dart';
-import 'output_format.dart';
 
 class AppwritePreviewImage extends StatelessWidget {
   const AppwritePreviewImage({
@@ -53,7 +52,7 @@ class AppwritePreviewImage extends StatelessWidget {
   final double scale;
 
   /// Appwrite image clip gravity
-  final Gravity? gravity;
+  final ImageGravity? gravity;
 
   /// Appwrite preview quality 0-100
   final int? quality;
@@ -83,7 +82,7 @@ class AppwritePreviewImage extends StatelessWidget {
   final Color? background;
 
   /// Appwrite preview output format
-  final OutputFormat? output;
+  final ImageFormat? output;
 
   /// Appwrite storage client.
   /// This overrides the [AppwritePreviewImageProvider.setDefaultStorage] option.
